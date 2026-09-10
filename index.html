@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base target="_top">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Tuntutan Perubatan</title>
+  <style>
+   :root{
+     --ink:#0d261f;
+     --sea:#10b981;
+     --sea-dark:#0c8c63;
+     --sand:#fafcfb;
+     --paper:#FFFFFF;
+     --amber:#E0A23B;
+     --coral:#ef4444;
+     --mist:#e2ede8;
+     --mist-2:#f2f6f4;
+     --ok:#0c8c63;
+     --radius:12px;
+     --shadow:0 1px 2px rgba(13,38,31,0.05), 0 6px 18px rgba(13,38,31,0.07);
+   }
+   *{box-sizing:border-box;}
+   html,body{margin:0;padding:0;}
+   body{
+     background:var(--sand);
+     color:var(--ink);
+     font-family:'Plus Jakarta Sans',-apple-system,Segoe UI,Roboto,sans-serif;
+     font-size:14.5px;
+     line-height:1.5;
+     -webkit-font-smoothing:antialiased;
+     min-height:100vh;
+   }
+   h1,h2,h3{
+     font-family:'Plus Jakarta Sans',sans-serif;
+     font-weight:700;
+     margin:0;
+     color:var(--ink);
+     letter-spacing:-0.01em;
+   }
+   .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+
+   .topbar{
+     display:flex;align-items:center;justify-content:space-between;
+     gap:16px;flex-wrap:wrap;margin-bottom:26px;
+   }
+   .brand{display:flex;align-items:center;gap:12px;}
+   .brand-mark{
+     width:38px;height:38px;border-radius:9px;
+     background:linear-gradient(160deg,var(--sea),var(--sea-dark));
+     display:flex;align-items:center;justify-content:center;
+     color:#fff;flex-shrink:0;
+   }
+   .brand h1{font-size:19px;}
+   .brand .sub{font-size:12.5px;color:#5c7069;margin-top:1px;}
+
+   .topbar-actions{display:flex;align-items:center;gap:10px;}
+
+   .btn-admin{
+     display:flex;align-items:center;gap:6px;
+     background:var(--ink);color:#fff;border:none;border-radius:8px;
+     padding:9px 14px;font-size:13px;font-weight:600;font-family:inherit;
+     cursor:pointer;transition:opacity .15s;
+   }
+   .btn-admin:hover{opacity:.88;}
+
+   select{
+     border:1px solid var(--mist);border-radius:8px;
+     padding:8px 12px;font-size:13.5px;font-family:inherit;
+     background:#fff;color:var(--ink);cursor:pointer;
+   }
+   select:focus{outline:2px solid var(--sea);outline-offset:1px;}
+
+   .section-title{
+     font-size:13px;font-weight:700;color:#5b7077;text-transform:uppercase;
+     letter-spacing:.03em;margin:0 0 14px;
+   }
+
+   .picker-search{
+     width:100%;padding:11px 14px;border:1px solid var(--mist);border-radius:10px;
+     font-size:14px;font-family:inherit;margin-bottom:16px;background:#fff;color:var(--ink);
+   }
+   .picker-search:focus{outline:2px solid var(--sea);outline-offset:1px;}
+
+   .picker-list{
+     display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+     gap:10px;
+   }
+   .picker-item{
+     background:var(--paper);border:1px solid var(--mist);border-radius:10px;
+     padding:14px 16px;cursor:pointer;text-align:left;transition:all .15s;
+     font-family:inherit;
+   }
+   .picker-item:hover{border-color:var(--sea);box-shadow:var(--shadow);}
+   .picker-item .p-nama{font-weight:700;font-size:14px;color:var(--ink);}
+   .picker-item .p-kategori{font-size:11.5px;color:#8a9aa0;margin-top:3px;}
+
+   .btn-back{
+     background:none;border:none;color:var(--sea-dark);font-weight:600;
+     font-size:13.5px;cursor:pointer;margin-bottom:16px;padding:0;font-family:inherit;
+   }
+   .btn-back:hover{text-decoration:underline;}
+
+   .detail-card{
+     background:var(--paper);border:1px solid var(--mist);border-radius:var(--radius);
+     box-shadow:var(--shadow);padding:28px;max-width:420px;margin:0 auto;
+   }
+   .detail-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;}
+   .detail-nama{font-weight:800;font-size:18px;color:var(--ink);}
+   .detail-kategori{font-size:12.5px;color:#8a9aa0;margin-top:2px;}
+   .detail-peratus{font-size:26px;font-weight:800;}
+
+   .bar-chart-wrap{display:flex;justify-content:center;margin:26px 0 22px;}
+   .bar-chart-col{display:flex;flex-direction:column;align-items:center;gap:8px;}
+   .bar-chart-value{font-size:14px;font-weight:800;}
+   .bar-chart-track{
+     width:64px;height:220px;background:var(--mist-2);border-radius:10px;
+     position:relative;overflow:hidden;border:1px solid var(--mist);
+   }
+   .bar-chart-fill{
+     position:absolute;bottom:0;left:0;width:100%;height:0;
+     border-radius:8px 8px 0 0;transition:height .5s ease,background .3s ease;
+   }
+   .bar-chart-label{font-size:11.5px;font-weight:700;color:#8a9aa0;text-transform:uppercase;letter-spacing:.02em;}
+
+   .detail-stats{
+     display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+     border-top:1px solid var(--mist);padding-top:18px;
+   }
+   .stat{text-align:center;}
+   .stat-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:#8a9aa0;margin-bottom:4px;}
+   .stat-value{font-size:14.5px;font-weight:800;color:var(--ink);}
+   .stat-value.sea{color:var(--sea-dark);}
+
+   .empty-state{
+     text-align:center;color:#8a9aa0;padding:60px 20px;
+     border:1px dashed var(--mist);border-radius:var(--radius);font-size:13.5px;
+     grid-column:1/-1;
+   }
+
+   footer.page{margin-top:40px;text-align:center;font-size:12px;color:#9aa9ae;}
+
+   .admin-overlay{
+     position:fixed;inset:0;background:rgba(13,38,31,0.45);
+     display:flex;align-items:center;justify-content:center;
+     opacity:0;pointer-events:none;transition:opacity .18s;
+     padding:20px;z-index:100;
+   }
+   .admin-overlay.open{opacity:1;pointer-events:auto;}
+
+   .admin-modal{
+     background:var(--paper);border-radius:16px;width:100%;max-width:440px;
+     max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(13,38,31,0.25);
+     padding:24px 24px 26px;
+   }
+
+   .admin-modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+   .admin-modal-head h2{font-size:18px;}
+
+   .btn-close{
+     width:30px;height:30px;border-radius:8px;border:none;background:var(--mist-2);
+     color:#5c7069;font-size:20px;line-height:1;cursor:pointer;
+   }
+   .btn-close:hover{background:var(--mist);}
+
+   .admin-auth{display:flex;flex-direction:column;gap:5px;}
+   .admin-auth label{font-size:12px;font-weight:700;color:#5c7069;}
+   .admin-auth input{
+     border:1px solid var(--mist);border-radius:8px;padding:10px 12px;
+     font-size:13.5px;font-family:inherit;color:var(--ink);background:#fff;margin-bottom:4px;
+   }
+   .admin-auth input:focus{outline:2px solid var(--sea);outline-offset:1px;}
+   .admin-auth .btn-submit{margin-top:8px;}
+
+   .admin-tabs{display:flex;gap:6px;background:var(--mist-2);padding:4px;border-radius:10px;margin-bottom:16px;}
+   .admin-tab{
+     flex:1;border:none;background:transparent;padding:9px 8px;border-radius:8px;
+     font-family:inherit;font-size:12.5px;font-weight:600;color:#5c7069;cursor:pointer;
+     transition:background .15s,color .15s;
+   }
+   .admin-tab.active{background:#fff;color:var(--sea-dark);box-shadow:var(--shadow);}
+
+   .admin-msg{
+     font-size:12.5px;font-weight:600;padding:0;border-radius:8px;
+     max-height:0;overflow:hidden;opacity:0;transition:all .2s;margin-bottom:0;
+   }
+   .admin-msg.show{max-height:60px;opacity:1;padding:10px 12px;margin-bottom:14px;}
+   .admin-msg.success{background:#e5f7ee;color:var(--sea-dark);}
+   .admin-msg.error{background:#fdeaea;color:#b91c1c;}
+
+   .admin-form{display:none;flex-direction:column;gap:5px;}
+   .admin-form.active{display:flex;}
+
+   .admin-form label{font-size:12px;font-weight:700;color:#5c7069;margin-top:10px;}
+   .admin-form label:first-of-type{margin-top:0;}
+
+   .admin-form input,
+   .admin-form select{
+     border:1px solid var(--mist);border-radius:8px;padding:10px 12px;
+     font-size:13.5px;font-family:inherit;color:var(--ink);background:#fff;
+   }
+   .admin-form input:focus,
+   .admin-form select:focus{outline:2px solid var(--sea);outline-offset:1px;}
+
+   .btn-submit{
+     margin-top:18px;background:linear-gradient(160deg,var(--sea),var(--sea-dark));
+     color:#fff;border:none;border-radius:9px;padding:12px 16px;
+     font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;
+     transition:opacity .15s;
+   }
+   .btn-submit:hover{opacity:.9;}
+   .btn-submit:disabled{opacity:.6;cursor:not-allowed;}
+
+   @media (max-width:560px){
+     .wrap{padding:18px 14px 50px;}
+     .picker-list{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+     .detail-card{padding:22px;}
+     .bar-chart-track{width:56px;height:190px;}
+   }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <h1>Dashboard Tuntutan Perubatan</h1>
+          <div class="sub" id="orgName">Nama Organisasi Anda</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="openAdminBtn" class="btn-admin" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          Panel Admin
+        </button>
+        <select id="yearSelect"></select>
+      </div>
+    </div>
+
+    <div id="pickerView">
+      <div class="section-title">Pilih Nama Anda Untuk Lihat Baki Tuntutan</div>
+      <input type="text" id="staffSearch" class="picker-search" placeholder="Cari nama anda...">
+      <div id="staffPickerList" class="picker-list">
+        <div class="empty-state">Memuatkan senarai staff...</div>
+      </div>
+    </div>
+
+    <div id="detailView" class="detail-view" style="display:none;">
+      <button id="backBtn" class="btn-back" type="button">&larr; Kembali ke senarai</button>
+      <div class="detail-card">
+        <div class="detail-head">
+          <div>
+            <div class="detail-nama" id="d_nama">-</div>
+            <div class="detail-kategori" id="d_kategori">-</div>
+          </div>
+          <div class="detail-peratus" id="d_peratus">-</div>
+        </div>
+        <div class="bar-chart-wrap">
+          <div class="bar-chart-col">
+            <div class="bar-chart-value" id="d_barValue"></div>
+            <div class="bar-chart-track">
+              <div class="bar-chart-fill" id="d_barFill"></div>
+            </div>
+            <div class="bar-chart-label">Peratus Digunakan</div>
+          </div>
+        </div>
+        <div class="detail-stats">
+          <div class="stat">
+            <div class="stat-label">Digunakan</div>
+            <div class="stat-value sea" id="d_digunakan">-</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Baki</div>
+            <div class="stat-value" id="d_baki">-</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Had Tahunan</div>
+            <div class="stat-value" id="d_had">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="page">Dashboard ini dijana automatik daripada Google Sheets</footer>
+  </div>
+
+  <div id="adminOverlay" class="admin-overlay">
+    <div class="admin-modal">
+      <div class="admin-modal-head">
+        <h2>Panel Admin</h2>
+        <button id="closeAdminBtn" class="btn-close" type="button" aria-label="Tutup">&times;</button>
+      </div>
+
+      <div id="adminAuthGate" class="admin-auth">
+        <label>Kata Laluan Admin</label>
+        <input type="password" id="adminPwInput" placeholder="Masukkan kata laluan">
+        <div id="adminAuthMsg" class="admin-msg"></div>
+        <button id="adminAuthBtn" class="btn-submit" type="button">Log Masuk</button>
+      </div>
+
+      <div id="adminPanelContent" style="display:none;">
+        <div class="admin-tabs">
+          <button class="admin-tab active" data-tab="tuntutan" type="button">Tambah Tuntutan</button>
+          <button class="admin-tab" data-tab="staff" type="button">Tambah Staff Baru</button>
+        </div>
+
+        <div id="adminMsg" class="admin-msg"></div>
+
+        <form id="formTuntutan" class="admin-form active">
+          <label>Nama Staff</label>
+          <select id="ft_nama" required>
+            <option value="">- Pilih staff -</option>
+          </select>
+          <label>Tarikh Tuntutan</label>
+          <input type="date" id="ft_tarikh" required>
+          <label>Jumlah (RM)</label>
+          <input type="number" id="ft_jumlah" min="0.01" step="0.01" placeholder="Contoh: 150.00" required>
+          <label>Catatan</label>
+          <input type="text" id="ft_catatan" placeholder="Contoh: Rawatan klinik">
+          <button type="submit" class="btn-submit">Simpan Tuntutan</button>
+        </form>
+
+        <form id="formStaff" class="admin-form">
+          <label>Nama Staff</label>
+          <input type="text" id="fs_nama" placeholder="Contoh: Ahmad bin Ali" required>
+          <label>Kategori</label>
+          <select id="fs_kategori" required>
+            <option value="">- Pilih kategori -</option>
+          </select>
+          <label>Had Tuntutan Tahunan (RM)</label>
+          <input type="number" id="fs_had" min="0" step="0.01" placeholder="Contoh: 1000" required>
+          <button type="submit" class="btn-submit">Daftar Staff</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====================== KONFIGURASI - WAJIB TUKAR ======================
+    // Letak URL Web App GAS korang di sini (dari Deploy > Manage deployments)
+    const API_URL = 'GANTI_DENGAN_URL_GAS_KORANG';
+    // =========================================================================
+
+    function fmtRM(n) {
+      return 'RM' + Number(n || 0).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, function(c) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+    function barColor(pct) {
+      if (pct >= 100) return '#ef4444';
+      if (pct >= 80) return '#E0A23B';
+      return '#10b981';
+    }
+
+    // ====================== API HELPERS (fetch, ganti google.script.run) ======================
+    async function apiGet(action, params) {
+      const url = new URL(API_URL);
+      url.searchParams.set('action', action);
+      if (params) {
+        Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+      }
+      const res = await fetch(url.toString());
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'Ralat tidak diketahui');
+      return json.data;
+    }
+
+    async function apiPost(action, data) {
+      const payload = Object.assign({ action: action }, data);
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // elak CORS preflight
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'Ralat tidak diketahui');
+      return json.data;
+    }
+
+    var allStaff = [];
+    var selectedStaffName = null;
+
+    function renderStaffPicker(list) {
+      var el = document.getElementById('staffPickerList');
+      if (!list || !list.length) {
+        el.innerHTML = '<div class="empty-state">Tiada staff berdaftar lagi. Sila hubungi admin.</div>';
+        return;
+      }
+      var html = '';
+      list.forEach(function(s) {
+        html += '<button class="picker-item" type="button" data-nama="' + escapeHtml(s.nama) + '">' +
+          '<div class="p-nama">' + escapeHtml(s.nama) + '</div>' +
+          '<div class="p-kategori">' + escapeHtml(s.kategori) + '</div>' +
+          '</button>';
+      });
+      el.innerHTML = html;
+      el.querySelectorAll('.picker-item').forEach(function(btn) {
+        btn.addEventListener('click', function() { selectStaff(btn.dataset.nama); });
+      });
+    }
+
+    async function loadStaffPicker() {
+      try {
+        allStaff = await apiGet('getStaffPicker');
+        renderStaffPicker(allStaff);
+      } catch (err) {
+        document.getElementById('staffPickerList').innerHTML = '<div class="empty-state">Ralat memuatkan senarai: ' + escapeHtml(err.message) + '</div>';
+      }
+    }
+
+    document.getElementById('staffSearch').addEventListener('input', function() {
+      var q = this.value.trim().toLowerCase();
+      var filtered = !q ? allStaff : allStaff.filter(function(s) { return s.nama.toLowerCase().indexOf(q) !== -1; });
+      renderStaffPicker(filtered);
+    });
+
+    function selectStaff(nama) {
+      selectedStaffName = nama;
+      document.getElementById('pickerView').style.display = 'none';
+      document.getElementById('detailView').style.display = 'block';
+      loadStaffDetail();
+    }
+
+    async function loadStaffDetail() {
+      if (!selectedStaffName) return;
+      var year = document.getElementById('yearSelect').value;
+      try {
+        var s = await apiGet('getStaffSummary', { nama: selectedStaffName, tahun: year });
+        renderStaffDetail(s);
+      } catch (err) {
+        document.getElementById('d_nama').textContent = 'Ralat: ' + err.message;
+      }
+    }
+
+    function renderStaffDetail(s) {
+      var color = barColor(s.peratus);
+      document.getElementById('d_nama').textContent = s.nama;
+      document.getElementById('d_kategori').textContent = s.kategori;
+      document.getElementById('d_peratus').textContent = s.peratus + '%';
+      document.getElementById('d_peratus').style.color = color;
+      document.getElementById('d_digunakan').textContent = fmtRM(s.digunakan);
+      document.getElementById('d_baki').textContent = fmtRM(s.baki);
+      document.getElementById('d_had').textContent = fmtRM(s.had);
+      var fill = document.getElementById('d_barFill');
+      fill.style.height = s.peratus + '%';
+      fill.style.background = color;
+      document.getElementById('d_barValue').textContent = s.peratus + '%';
+      document.getElementById('d_barValue').style.color = color;
+    }
+
+    document.getElementById('backBtn').addEventListener('click', function() {
+      selectedStaffName = null;
+      document.getElementById('detailView').style.display = 'none';
+      document.getElementById('pickerView').style.display = 'block';
+    });
+
+    async function initYearSelector() {
+      try {
+        var years = await apiGet('getAvailableYears');
+        var sel = document.getElementById('yearSelect');
+        var currentYear = new Date().getFullYear();
+        if (years.indexOf(currentYear) === -1) years.unshift(currentYear);
+        sel.innerHTML = years.map(function(y) { return '<option value="' + y + '">' + y + '</option>'; }).join('');
+        sel.value = currentYear;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById('yearSelect').addEventListener('change', function() {
+      if (selectedStaffName) loadStaffDetail();
+    });
+
+    var adminOverlay = document.getElementById('adminOverlay');
+    var adminMsgEl = document.getElementById('adminMsg');
+    var adminAuthenticated = false;
+    var adminPassword = null;
+
+    function showAdminMsg(text, isError) {
+      adminMsgEl.textContent = text;
+      adminMsgEl.className = 'admin-msg show ' + (isError ? 'error' : 'success');
+      setTimeout(function() { adminMsgEl.className = 'admin-msg'; }, 4000);
+    }
+    function showAuthMsg(text) {
+      var el = document.getElementById('adminAuthMsg');
+      el.textContent = text;
+      el.className = 'admin-msg show error';
+    }
+    function setFormLoading(form, loading) {
+      var btn = form.querySelector('button[type="submit"]');
+      btn.disabled = loading;
+      btn.textContent = loading ? 'Menyimpan...' : (form.id === 'formTuntutan' ? 'Simpan Tuntutan' : 'Daftar Staff');
+    }
+
+    function openAdmin() {
+      adminOverlay.classList.add('open');
+      if (adminAuthenticated) {
+        showAdminPanelContent();
+      } else {
+        document.getElementById('adminAuthGate').style.display = 'flex';
+        document.getElementById('adminPanelContent').style.display = 'none';
+        document.getElementById('adminPwInput').value = '';
+        document.getElementById('adminPwInput').focus();
+      }
+    }
+    function showAdminPanelContent() {
+      document.getElementById('adminAuthGate').style.display = 'none';
+      document.getElementById('adminPanelContent').style.display = 'block';
+      document.getElementById('ft_tarikh').valueAsDate = new Date();
+      populateStaffDropdown();
+      populateKategoriDropdown();
+    }
+    function closeAdmin() { adminOverlay.classList.remove('open'); }
+
+    document.getElementById('openAdminBtn').addEventListener('click', openAdmin);
+    document.getElementById('closeAdminBtn').addEventListener('click', closeAdmin);
+    adminOverlay.addEventListener('click', function(e) { if (e.target === adminOverlay) closeAdmin(); });
+
+    document.getElementById('adminAuthBtn').addEventListener('click', async function() {
+      var pw = document.getElementById('adminPwInput').value;
+      if (!pw) { showAuthMsg('Sila isi kata laluan.'); return; }
+      var btn = document.getElementById('adminAuthBtn');
+      btn.disabled = true;
+      try {
+        await apiPost('checkAdminPassword', { password: pw });
+        btn.disabled = false;
+        adminAuthenticated = true;
+        adminPassword = pw;
+        showAdminPanelContent();
+      } catch (err) {
+        btn.disabled = false;
+        showAuthMsg(err.message);
+      }
+    });
+
+    document.getElementById('adminPwInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('adminAuthBtn').click();
+    });
+
+    document.querySelectorAll('.admin-tab').forEach(function(tabBtn) {
+      tabBtn.addEventListener('click', function() {
+        document.querySelectorAll('.admin-tab').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.admin-form').forEach(function(f) { f.classList.remove('active'); });
+        tabBtn.classList.add('active');
+        document.getElementById(tabBtn.dataset.tab === 'tuntutan' ? 'formTuntutan' : 'formStaff').classList.add('active');
+        adminMsgEl.className = 'admin-msg';
+      });
+    });
+
+    async function populateStaffDropdown() {
+      var sel = document.getElementById('ft_nama');
+      sel.innerHTML = '<option value="">Memuatkan...</option>';
+      try {
+        var names = await apiGet('getStaffNames');
+        if (!names.length) {
+          sel.innerHTML = '<option value="">Tiada staff berdaftar lagi</option>';
+          return;
+        }
+        sel.innerHTML = '<option value="">- Pilih staff -</option>' +
+          names.map(function(n) { return '<option value="' + escapeHtml(n) + '">' + escapeHtml(n) + '</option>'; }).join('');
+      } catch (err) {
+        sel.innerHTML = '<option value="">Ralat memuatkan senarai staff</option>';
+      }
+    }
+
+    async function populateKategoriDropdown() {
+      var sel = document.getElementById('fs_kategori');
+      try {
+        var list = await apiGet('getKategoriList');
+        sel.innerHTML = '<option value="">- Pilih kategori -</option>' +
+          list.map(function(k) { return '<option value="' + escapeHtml(k) + '">' + escapeHtml(k) + '</option>'; }).join('');
+      } catch (err) {
+        sel.innerHTML = '<option value="">Ralat memuatkan kategori</option>';
+      }
+    }
+
+    document.getElementById('formTuntutan').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var form = e.target;
+      var payload = {
+        nama: document.getElementById('ft_nama').value,
+        tarikh: document.getElementById('ft_tarikh').value,
+        jumlah: document.getElementById('ft_jumlah').value,
+        catatan: document.getElementById('ft_catatan').value,
+        password: adminPassword
+      };
+      setFormLoading(form, true);
+      try {
+        var res = await apiPost('addClaim', payload);
+        setFormLoading(form, false);
+        showAdminMsg(res.message, false);
+        form.reset();
+        document.getElementById('ft_tarikh').valueAsDate = new Date();
+        loadStaffPicker();
+        if (selectedStaffName) loadStaffDetail();
+      } catch (err) {
+        setFormLoading(form, false);
+        showAdminMsg(err.message, true);
+      }
+    });
+
+    document.getElementById('formStaff').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var form = e.target;
+      var payload = {
+        nama: document.getElementById('fs_nama').value,
+        kategori: document.getElementById('fs_kategori').value,
+        hadTahunan: document.getElementById('fs_had').value,
+        password: adminPassword
+      };
+      setFormLoading(form, true);
+      try {
+        var res = await apiPost('addStaff', payload);
+        setFormLoading(form, false);
+        showAdminMsg(res.message, false);
+        form.reset();
+        populateStaffDropdown();
+        loadStaffPicker();
+      } catch (err) {
+        setFormLoading(form, false);
+        showAdminMsg(err.message, true);
+      }
+    });
+
+    initYearSelector();
+    loadStaffPicker();
+  </script>
+</body>
+</html>
