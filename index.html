@@ -521,7 +521,11 @@
       populateStaffDropdown();
       populateKategoriDropdown();
     }
-    function closeAdmin() { adminOverlay.classList.remove('open'); }
+    function closeAdmin() { 
+      adminOverlay.classList.remove('open'); 
+      adminAuthenticated = false;
+      adminPassword = null;
+    }
 
     document.getElementById('openAdminBtn').addEventListener('click', openAdmin);
     document.getElementById('closeAdminBtn').addEventListener('click', closeAdmin);
