@@ -144,16 +144,18 @@
 
    .admin-overlay{
      position:fixed;inset:0;background:rgba(13,38,31,0.45);
-     display:flex;align-items:center;justify-content:center;
      opacity:0;pointer-events:none;transition:opacity .18s;
      padding:20px;z-index:100;
      overflow-y:auto;
    }
+    .admin-overlay.open{
+      opacity:1;pointer-events:auto;
+    }
    
 
    .admin-modal{
      background:var(--paper);border-radius:16px;width:100%;max-width:440px;
-     max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(13,38,31,0.25);
+     overflow-y:visible;box-shadow:0 20px 60px rgba(13,38,31,0.25);
      padding:24px 24px 26px;
      margin:40px auto;
    }
